@@ -1,0 +1,207 @@
+{
+  "info": {
+    "_postman_id": "06f4a71d-02b6-4e15-8634-e4e774085827",
+    "name": "MISE — QA Booking Demo API",
+    "description": "Demo API для тестового задания Junior QA.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52695327",
+    "_collection_link": "https://go.postman.co/collection/52695327-06f4a71d-02b6-4e15-8634-e4e774085827?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Успешное бронирование",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Анна\",\n  \"phone\": \"+79991234567\",\n  \"date\": \"2026-09-10\",\n  \"time\": \"14:00\",\n  \"guests\": 4\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/booking",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "booking"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Невалидный телефон",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Анна\",\n  \"phone\": \"12345\",\n  \"date\": \"2026-09-10\",\n  \"time\": \"14:00\",\n  \"guests\": 4\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/booking",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "booking"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Дата в прошлом",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Анна\",\n  \"phone\": \"+79991234567\",\n  \"date\": \"2020-01-01\",\n  \"time\": \"14:00\",\n  \"guests\": 4\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/booking",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "booking"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Дата в следующем году",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Анна\",\n  \"phone\": \"+79991234567\",\n  \"date\": \"2020-01-01\",\n  \"time\": \"14:00\",\n  \"guests\": 4\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/booking",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "booking"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Не хватает обязательного поля (name)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone\": \"+79991234567\",\n  \"date\": \"2026-09-10\",\n  \"time\": \"14:00\",\n  \"guests\": 4\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/booking",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "booking"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Некорректное количество гостей (0)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Анна\",\n  \"phone\": \"+79991234567\",\n  \"date\": \"2026-09-10\",\n  \"time\": \"14:00\",\n  \"guests\": 0\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/booking",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "booking"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Некорректное количество гостей (13)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Анна\",\n  \"phone\": \"+79991234567\",\n  \"date\": \"2026-09-10\",\n  \"time\": \"14:00\",\n  \"guests\": 0\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/booking",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "booking"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://qa-booking-demo.vercel.app"
+    }
+  ]
+}

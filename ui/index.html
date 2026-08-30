@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MISE — Бронирование столика (demo)</title>
+<style>
+  :root {
+    --bg: #FAFAF8;
+    --accent: #C8963E;
+    --text: #1A1A1A;
+    --error: #C0392B;
+    --border: #E3E1D8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+  .card {
+    width: 100%;
+    max-width: 440px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 24px;
+  }
+  h1 {
+    font-size: 20px;
+    margin: 0 0 4px;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 24px;
+  }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+  input, select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #fff;
+  }
+  input.invalid, select.invalid {
+    border-color: var(--error);
+  }
+  .error {
+    color: var(--error);
+    font-size: 12px;
+    margin-top: 4px;
+    min-height: 14px;
+  }
+  button.submit {
+    width: 100%;
+    margin-top: 24px;
+    padding: 12px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button.submit:disabled {
+    opacity: 0.7;
+    cursor: default;
+  }
+  .confirm {
+    text-align: center;
+  }
+  .confirm .check {
+    font-size: 40px;
+    margin-bottom: 8px;
+  }
+  .confirm .row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .confirm .row span:first-child { color: #777; }
+  .again {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .hint {
+    font-size: 11px;
+    color: #999;
+    margin-top: 24px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>Бронирование столика</h1>
+  <div class="subtitle">MISE demo — тестовое окружение для QA-задания</div>
+
+  <form id="bookingForm" novalidate>
+    <label for="name">Имя гостя</label>
+    <input type="text" id="name" name="name" placeholder="Как к вам обращаться">
+    <div class="error" id="err-name"></div>
+
+    <label for="phone">Номер телефона</label>
+    <input type="text" id="phone" name="phone" placeholder="+7 999 123-45-67">
+    <div class="error" id="err-phone"></div>
+
+    <label for="date">Дата</label>
+    <input type="date" id="date" name="date">
+    <div class="error" id="err-date"></div>
+
+    <label for="time">Время</label>
+    <select id="time" name="time">
+      <option value="">Выберите время</option>
+    </select>
+    <div class="error" id="err-time"></div>
+
+    <label for="guests">Количество гостей</label>
+    <input type="number" id="guests" name="guests" placeholder="1–12">
+    <div class="error" id="err-guests"></div>
+
+    <button type="submit" class="submit" id="submitBtn">Забронировать</button>
+  </form>
+
+  <div class="confirm" id="confirmScreen" style="display:none;">
+    <div class="check">✅</div>
+    <h1>Бронь подтверждена</h1>
+    <div class="row"><span>Имя</span><span id="c-name"></span></div>
+    <div class="row"><span>Дата</span><span id="c-date"></span></div>
+    <div class="row"><span>Время</span><span id="c-time"></span></div>
+    <div class="row"><span>Гостей</span><span id="c-guests"></span></div>
+    <button class="again" id="againBtn">Забронировать ещё</button>
+  </div>
+
+  <div class="hint">Демо-страница для тестового задания. Реальных броней не создаёт.</div>
+</div>
+
+<script>
+  // Заполняем слоты времени 12:00–22:00
+  const timeSelect = document.getElementById('time');
+  // BUG (seeded): цикл останавливается на 21, поэтому слот 22:00 отсутствует
+  for (let h = 12; h <= 21; h++) {
+    const opt = document.createElement('option');
+    const label = String(h).padStart(2, '0') + ':00';
+    opt.value = label;
+    opt.textContent = label;
+    timeSelect.appendChild(opt);
+  }
+
+  const form = document.getElementById('bookingForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const fields = ['name', 'phone', 'date', 'time', 'guests'];
+
+  function setError(field, msg) {
+    document.getElementById('err-' + field).textContent = msg || '';
+    const el = document.getElementById(field);
+    if (msg) el.classList.add('invalid'); else el.classList.remove('invalid');
+  }
+
+  function validateName(v) {
+    // BUG (seeded): минимальная длина не проверяется, требование — минимум 2 символа
+    if (!v.trim()) return 'Укажите имя';
+    return '';
+  }
+
+  function validatePhone(v) {
+    if (!v.trim()) return 'Укажите номер телефона';
+    const digits = v.replace(/\D/g, '');
+    // BUG (seeded): условие пропускает и 10-значные номера без кода страны как валидные
+    if (digits.length === 10 || digits.length === 11) {
+      return '';
+    }
+    return 'Введите номер в формате +7XXXXXXXXXX или 8XXXXXXXXXX';
+  }
+
+  function validateDate(v) {
+    if (!v) return 'Укажите дату';
+    // BUG (seeded): проверка "не раньше сегодня" отсутствует — прошедшие даты принимаются
+    return '';
+  }
+
+  function validateTime(v) {
+    if (!v) return 'Выберите время';
+    return '';
+  }
+
+  function validateGuests(v) {
+    if (!v) return 'Укажите количество гостей';
+    const n = Number(v);
+    if (!Number.isInteger(n) || n < 1) return 'Введите число от 1 до 12';
+    // BUG (seeded): верхняя граница (12) не проверяется
+    return '';
+  }
+
+  const validators = {
+    name: validateName,
+    phone: validatePhone,
+    date: validateDate,
+    time: validateTime,
+    guests: validateGuests,
+  };
+
+  fields.forEach(f => {
+    document.getElementById(f).addEventListener('blur', () => {
+      const v = document.getElementById(f).value;
+      setError(f, validators[f](v));
+    });
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    let hasError = false;
+    fields.forEach(f => {
+      const v = document.getElementById(f).value;
+      const msg = validators[f](v);
+      // BUG (seeded): ошибка при повторной сабмиссии с исправленным полем иногда не сбрасывается,
+      // если поле ни разу не теряло фокус после правки (см. валидацию только по submit ниже для phone)
+      setError(f, msg);
+      if (msg) hasError = true;
+    });
+    if (hasError) return;
+
+    const name = document.getElementById('name').value;
+    const date = document.getElementById('date').value;
+    const time = document.getElementById('time').value;
+    const guests = document.getElementById('guests').value;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Бронирую...';
+
+    setTimeout(() => {
+      document.getElementById('c-name').textContent = name;
+      document.getElementById('c-date').textContent = date;
+      document.getElementById('c-time').textContent = time;
+      document.getElementById('c-guests').textContent = guests;
+
+      form.style.display = 'none';
+      document.getElementById('confirmScreen').style.display = 'block';
+    }, 1500);
+  });
+
+  document.getElementById('againBtn').addEventListener('click', () => {
+    // BUG (seeded): форма не очищается — старые значения остаются в полях при повторном открытии
+    document.getElementById('confirmScreen').style.display = 'none';
+    form.style.display = 'block';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Забронировать';
+  });
+</script>
+
+</body>
+</html>
